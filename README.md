@@ -1,5 +1,7 @@
 # bashback - Backup Tool in Bash
 
+![logo](bashback.png)
+
 A lightweight, incremental backup utility written in pure Bash that synchronizes directories and maintains backup integrity.
 
 In other words, it's rsync in Bash.
