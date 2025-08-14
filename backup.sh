@@ -3,7 +3,7 @@
 
 # HELP
 usage() {
-    echo "Usage: $0 [-c] [-b tfile] [-r regexpr] source_directory backup_directory"
+    echo "Usage: bashback [-c] [-b tfile] [-r regexpr] source_directory backup_directory"
     exit 1
 }
 

@@ -38,6 +38,25 @@ Options:
 - `-b exclude_file`: **Exclude file** - Specify a text file containing filenames/patterns to exclude
 - `-r regex_pattern`: **Regex filter** - Only backup files matching the specified regex pattern
 
+Examples
+```bash
+# Simple backup
+bashback ~/Documents ~/Backups/Documents
+
+# Preview what will be backed up (dry run)
+bashback -c ~/Documents ~/Backups/Documents
+
+# Use exclude file to skip items
+echo -e "*.tmp\n*.log\nnode_modules" > exclude.txt
+bashback -b exclude.txt ~/Projects ~/Backups/Projects
+
+# Only backup text files
+bashback -r ".*\.txt$" ~/Documents ~/Backups/Documents
+
+# Only backup images
+bashback -r ".*\.(jpg|png|gif)$" ~/Pictures ~/Backups/Pictures
+```
+
 ### License
 
 This project is open source and available under the [MIT License](LICENSE).

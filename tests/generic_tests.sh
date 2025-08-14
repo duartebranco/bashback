@@ -71,7 +71,7 @@ verify_file_not_exists() {
 test_basic_backup() {
     echo -e "\n${YELLOW}=== Test 1: Basic Backup ===${NC}"
     rm -rf "$BACKUP_DIR"
-    ../backup.sh "$SOURCE_DIR" "$BACKUP_DIR"
+    bashback "$SOURCE_DIR" "$BACKUP_DIR"
 
     echo -e "\n${YELLOW}Verification:${NC}"
     verify_file_exists "$BACKUP_DIR/test.txt"
@@ -85,13 +85,13 @@ test_basic_backup() {
 test_check_mode() {
     echo -e "\n${YELLOW}=== Test 2: Check Mode ===${NC}"
     echo "This should show no operations since files already exist:"
-    ../backup.sh -c "$SOURCE_DIR" "$BACKUP_DIR"
+    bashback -c "$SOURCE_DIR" "$BACKUP_DIR"
 }
 
 test_exclude_files() {
     echo -e "\n${YELLOW}=== Test 3: Exclude Files ===${NC}"
     rm -rf "$BACKUP_DIR"
-    ../backup.sh -b "$EXCLUDE_FILE" "$SOURCE_DIR" "$BACKUP_DIR"
+    bashback -b "$EXCLUDE_FILE" "$SOURCE_DIR" "$BACKUP_DIR"
 
     echo -e "\n${YELLOW}Verification (should exclude cache.tmp, temp/, and backup.tmp):${NC}"
     verify_file_exists "$BACKUP_DIR/test.txt"
@@ -103,7 +103,7 @@ test_exclude_files() {
 test_regex_filter() {
     echo -e "\n${YELLOW}=== Test 4: Regex Filter (CSS files only) ===${NC}"
     rm -rf "$BACKUP_DIR"
-    ../backup.sh -r ".*\.css$" "$SOURCE_DIR" "$BACKUP_DIR"
+    bashback -r ".*\.css$" "$SOURCE_DIR" "$BACKUP_DIR"
 
     echo -e "\n${YELLOW}Verification (should only backup CSS files):${NC}"
     verify_file_exists "$BACKUP_DIR/style.css"
@@ -116,13 +116,13 @@ test_incremental_backup() {
     rm -rf "$BACKUP_DIR"
 
     echo "First backup:"
-    ../backup.sh "$SOURCE_DIR" "$BACKUP_DIR"
+    bashback "$SOURCE_DIR" "$BACKUP_DIR"
 
     echo -e "\nModifying a file..."
     echo "Modified content" > "$SOURCE_DIR/test.txt"
 
     echo "Running incremental backup (should detect and update the modified file):"
-    ../backup.sh "$SOURCE_DIR" "$BACKUP_DIR"
+    bashback "$SOURCE_DIR" "$BACKUP_DIR"
 
     echo -e "\n${YELLOW}Verification:${NC}"
     if grep -q "Modified content" "$BACKUP_DIR/test.txt"; then
@@ -142,7 +142,7 @@ test_cleanup_orphaned_files() {
 
     echo "Added orphaned files/directories to backup"
     echo "Running backup (should remove orphaned files):"
-    ../backup.sh "$SOURCE_DIR" "$BACKUP_DIR"
+    bashback "$SOURCE_DIR" "$BACKUP_DIR"
 
     echo -e "\n${YELLOW}Verification:${NC}"
     verify_file_not_exists "$BACKUP_DIR/orphaned_file.txt"

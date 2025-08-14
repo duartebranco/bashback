@@ -4,7 +4,6 @@
 set -e  # Exit on error
 
 SCRIPT_NAME="bashback"
-REPO_URL="https://github.com/yourusername/bashback"
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -19,7 +18,6 @@ print_usage() {
     echo "Options:"
     echo "  --system      Install system-wide (requires sudo)"
     echo "  --user        Install for current user only"
-    echo "  --uninstall   Remove BashBack installation"
     echo "  --help        Show this help message"
     echo ""
     echo "If no option is specified, the script will choose the best option based on permissions."
@@ -28,22 +26,22 @@ print_usage() {
 install_system() {
     local bin_dir="/usr/local/bin"
     local lib_dir="/usr/local/lib/bashback"
-    
+
     echo -e "${YELLOW}Installing BashBack system-wide...${NC}"
-    
+
     # Create lib directory for supporting files
     sudo mkdir -p "$lib_dir"
-    
+
     # Copy files
     sudo cp backup.sh "$bin_dir/$SCRIPT_NAME"
     sudo cp backup_tree.sh "$lib_dir/"
-    
+
     # Make executable
     sudo chmod +x "$bin_dir/$SCRIPT_NAME"
-    
+
     # Update the script to look for backup_tree.sh in the lib directory
     sudo sed -i "s|source \"\$SCRIPT_DIR/backup_tree.sh\"|source \"$lib_dir/backup_tree.sh\"|" "$bin_dir/$SCRIPT_NAME"
-    
+
     echo -e "${GREEN}✓ BashBack installed system-wide${NC}"
     echo -e "${GREEN}✓ Available as: $SCRIPT_NAME${NC}"
 }
@@ -51,57 +49,30 @@ install_system() {
 install_user() {
     local bin_dir="$HOME/.local/bin"
     local lib_dir="$HOME/.local/lib/bashback"
-    
+
     echo -e "${YELLOW}Installing BashBack for current user...${NC}"
-    
+
     # Create directories
     mkdir -p "$bin_dir" "$lib_dir"
-    
+
     # Copy files
     cp backup.sh "$bin_dir/$SCRIPT_NAME"
     cp backup_tree.sh "$lib_dir/"
-    
+
     # Make executable
     chmod +x "$bin_dir/$SCRIPT_NAME"
-    
+
     # Update the script to look for backup_tree.sh in the lib directory
     sed -i "s|source \"\$SCRIPT_DIR/backup_tree.sh\"|source \"$lib_dir/backup_tree.sh\"|" "$bin_dir/$SCRIPT_NAME"
-    
+
     echo -e "${GREEN}✓ BashBack installed for current user${NC}"
     echo -e "${GREEN}✓ Available as: $SCRIPT_NAME${NC}"
-    
+
     # Check if ~/.local/bin is in PATH
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
         echo -e "${YELLOW}⚠ $HOME/.local/bin is not in your PATH${NC}"
         echo -e "${YELLOW}Add this to your ~/.bashrc or ~/.zshrc:${NC}"
         echo -e "${YELLOW}export PATH=\"\$HOME/.local/bin:\$PATH\"${NC}"
-    fi
-}
-
-uninstall() {
-    local removed=false
-    
-    echo -e "${YELLOW}Uninstalling BashBack...${NC}"
-    
-    # Remove system installation
-    if [ -f "/usr/local/bin/$SCRIPT_NAME" ]; then
-        sudo rm -f "/usr/local/bin/$SCRIPT_NAME"
-        sudo rm -rf "/usr/local/lib/bashback"
-        echo -e "${GREEN}✓ Removed system-wide installation${NC}"
-        removed=true
-    fi
-    
-    # Remove user installation
-    if [ -f "$HOME/.local/bin/$SCRIPT_NAME" ]; then
-        rm -f "$HOME/.local/bin/$SCRIPT_NAME"
-        rm -rf "$HOME/.local/lib/bashback"
-        echo -e "${GREEN}✓ Removed user installation${NC}"
-        removed=true
-    fi
-    
-    if [ "$removed" = false ]; then
-        echo -e "${RED}✗ BashBack installation not found${NC}"
-        exit 1
     fi
 }
 
@@ -123,9 +94,6 @@ case "${1:-}" in
         ;;
     --user)
         install_user
-        ;;
-    --uninstall)
-        uninstall
         ;;
     --help|-h)
         print_usage
