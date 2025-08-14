@@ -1,6 +1,8 @@
 # bashback - Backup Tool in Bash
 
-![logo](bashback.png)
+<p align="center">
+    <img src="bashback.png" alt="logo"/>
+</p>
 
 A lightweight, incremental backup utility written in pure Bash that synchronizes directories and maintains backup integrity.
 
