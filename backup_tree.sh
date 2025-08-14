@@ -2,6 +2,28 @@ backup_summary() {
 	echo -e "While backing up $SOURCE_DIR: $errors Errors; $warnings Warnings; $updated Updated; $copied Copied ($copied_data B); $deleted Deleted ($deleted_data B)\n"
 }
 
+# Check if an item should be excluded
+is_excluded() {
+    local item="$1"
+    local filename=$(basename "$item")
+
+    for exclusion in "${exclusions[@]}"; do
+        # Exact filename match
+        if [[ "$filename" == "$exclusion" ]]; then
+            return 0
+        fi
+        # Full path match
+        if [[ "$item" == "$exclusion" ]]; then
+            return 0
+        fi
+        # Simple glob pattern match
+        if [[ "$filename" == $exclusion ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
+
 backup_tree() {
     local SOURCE_DIR="${1%/}"
     local BACKUP_DIR="${2%/}"
@@ -17,11 +39,10 @@ backup_tree() {
     local deleted=0
     local deleted_data=0
 
-
     # Read exclusions into an array if exclude_file is provided
     local exclusions=()
     # Check if exclude_file is not empty and exists as a file
-    if [ -n "$exclude_file" ] && [ -f "$exclude_file" ]; then 
+    if [ -n "$exclude_file" ] && [ -f "$exclude_file" ]; then
         # Read the lines of the file into an array
         mapfile -t exclusions < "$exclude_file"
     fi
@@ -34,7 +55,7 @@ backup_tree() {
             backup_file="$BACKUP_DIR/$filename"
 
             # Skip if the file is in the exclusions list
-            if [[ " ${exclusions[@]} " =~ " $filename " ]]; then
+            if is_excluded "$filename"; then
                 echo "Skipping '$source_file' as it is in the exclude list."
                 continue
             fi
@@ -78,7 +99,7 @@ backup_tree() {
             else
                 # Copy new file to backup
                 echo "cp -a '$file' '$backup_file'"
-                
+
                 if [ "$check_mode" = false ]; then
                     cp -a "$file" "$backup_file" || { errors=$((errors + 1)); continue; }
                     copied=$((copied + 1))
@@ -87,8 +108,6 @@ backup_tree() {
             fi
         fi
     done
-
-
 
     # Check if there are files/dirs in the backup directory that are not in the source directory
     for file in "$BACKUP_DIR"/*; do
@@ -100,12 +119,12 @@ backup_tree() {
             # Delete file if it does not exist in the source directory
             if [ ! -f "$source_file" ]; then
                 echo "rm '$backup_file'"
-                
+
                 if [ "$check_mode" = false ]; then
 		            file_size=$(du -b "$file" | cut -f1)
                     rm "$backup_file" || { errors=$((errors + 1)); continue; }
                     deleted=$((deleted + 1))
-		            deleted_data=$((deleted_data + file_size)) 
+		            deleted_data=$((deleted_data + file_size))
                 fi
             fi
         elif [[ -d "$file" ]]; then
@@ -117,7 +136,7 @@ backup_tree() {
             if [ ! -d "$source_dir" ]; then
 		        dir_size=$(du -sb "$backup_dir" | cut -f1)
                 echo "rm -r '$backup_dir'"
-                
+
                 if [ "$check_mode" = false ]; then
                     rm -r "$backup_dir" || { errors=$((errors + 1)); continue; }
                     deleted=$((deleted + 1))
@@ -136,26 +155,25 @@ backup_tree() {
             source_subdir="$SOURCE_DIR/$filename"
             backup_subdir="$BACKUP_DIR/$filename"
 
-	        # Skip if the file is in the exclusions list
-            if [[ " ${exclusions[@]} " =~ " $source_subdir " ]]; then
+	        # Skip if the directory is in the exclusions list
+            if is_excluded "$filename"; then
                 echo "Skipping '$source_subdir' as it is in the exclude list."
                 continue
             fi
 
             echo -e "$source_subdir is a subdirectory"
             echo -e "Backing up '$source_subdir' to '$backup_subdir'..."
-            
+
             if [ ! -d "$backup_subdir" ] || [ "$source_subdir" -nt "$backup_subdir" ]; then
                 echo "mkdir -p '$backup_subdir'"
-                
+
                 if [ "$check_mode" = false ]; then
                     mkdir -p "$backup_subdir"
                 fi
             fi
-            
+
             # Recursively back up the subdirectory
             backup_tree "$source_subdir" "$backup_subdir" "$check_mode" "$exclude_file" "$regex_pattern"
         fi
     done
 }
-
