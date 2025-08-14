@@ -1,4 +1,4 @@
-# BashBack - Backup Tool in Bash
+# bashback - Backup Tool in Bash
 
 A lightweight, incremental backup utility written in pure Bash that synchronizes directories and maintains backup integrity.
 
@@ -29,7 +29,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### Usage
+## Usage
 ```bash
 bashback [-c] [-b exclude_file] [-r regex_pattern] source_directory backup_directory
 ```
@@ -38,7 +38,7 @@ Options:
 - `-b exclude_file`: **Exclude file** - Specify a text file containing filenames/patterns to exclude
 - `-r regex_pattern`: **Regex filter** - Only backup files matching the specified regex pattern
 
-Examples
+### Examples
 ```bash
 # Simple backup
 bashback ~/Documents ~/Backups/Documents
@@ -57,6 +57,13 @@ bashback -r ".*\.txt$" ~/Documents ~/Backups/Documents
 bashback -r ".*\.(jpg|png|gif)$" ~/Pictures ~/Backups/Pictures
 ```
 
-### License
+## Documentation
+
+This project includes comprehensive documentation in the `docs/` directory:
+
+- **`Assignment.pdf`**: Original project requirements and specifications
+- **`Report.pdf`**: Detailed technical report covering implementation details, design decisions, and performance analysis
+
+## License
 
 This project is open source and available under the [MIT License](LICENSE).
